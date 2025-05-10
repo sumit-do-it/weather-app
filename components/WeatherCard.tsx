@@ -39,6 +39,7 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
+    backgroundColor: "white",
     flexDirection: "row",
     borderRadius: 20,
     padding: 16,
@@ -49,7 +50,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5,
+    elevation: 2,
     height: 140,
     overflow: "hidden",
   },

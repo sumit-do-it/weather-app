@@ -27,7 +27,7 @@ const WeatherScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={styles.container}
     >
       <Pressable onPress={Keyboard.dismiss} style={styles.contentContainer}>
@@ -81,13 +81,21 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: "row",
     marginBottom: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 1,
-    elevation: 2,
-    backgroundColor: "white", // Needed for Android shadow
     padding: 8,
+    backgroundColor: "white",
+    zIndex: 100,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: -1 },
+        shadowOpacity: 0.15,
+        shadowRadius: 1,
+      },
+      android: {
+        borderTopWidth: 1,
+        borderTopColor: "rgba(0, 0, 0, 0.1)",
+      },
+    }),
   },
   input: {
     flex: 1,
