@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Keyboard,
@@ -12,11 +12,15 @@ import {
   View,
 } from "react-native";
 import { WeatherCard } from "../components/WeatherCard";
+import { Colors } from "../constants/Colors";
+import { ThemeProvider, useTheme } from "../context/ThemeContext";
 import { WeatherProvider, useWeather } from "../context/WeatherContext";
 
 const WeatherScreen = () => {
   const [cityInput, setCityInput] = useState("");
   const { weatherData, loading, error, fetchWeather } = useWeather();
+  const { isDark, toggleTheme } = useTheme();
+  const themeColors = isDark ? Colors.dark : Colors.light;
 
   const handleSearch = () => {
     if (cityInput.trim()) {
@@ -25,16 +29,61 @@ const WeatherScreen = () => {
     }
   };
 
+  const dynamicStyles = useMemo(() => {
+    return {
+      container: {
+        backgroundColor: themeColors.background,
+      },
+      text: {
+        color: themeColors.text,
+      },
+      input: {
+        backgroundColor: themeColors.inputBackground,
+        color: themeColors.inputText,
+        borderColor: themeColors.inputBorder,
+      },
+      searchContainer: {
+        backgroundColor: themeColors.background,
+        ...Platform.select({
+          ios: {
+            shadowColor: themeColors.shadowColor,
+            shadowOffset: { width: 0, height: -1 },
+            shadowOpacity: themeColors.shadowOpacity,
+            shadowRadius: 1,
+          },
+          android: {
+            borderTopWidth: 1,
+            borderTopColor: themeColors.borderColor,
+          },
+        }),
+      },
+    };
+  }, [themeColors]);
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={styles.container}
+      style={[styles.container, dynamicStyles.container]}
     >
+      {/* <View style={styles.header}>
+        <TouchableOpacity onPress={toggleTheme} style={styles.themeButton}>
+          <Ionicons
+            name={isDark ? "sunny" : "moon"}
+            size={24}
+            color={themeColors.icon}
+          />
+        </TouchableOpacity>
+      </View> */}
       <Pressable onPress={Keyboard.dismiss} style={styles.contentContainer}>
         {loading && !weatherData ? (
-          <ActivityIndicator size="large" color="#0000ff" />
+          <ActivityIndicator
+            size="large"
+            color={themeColors.activityIndicator}
+          />
         ) : error ? (
-          <Text style={styles.error}>{error}</Text>
+          <Text style={[styles.error, { color: themeColors.error }]}>
+            {error}
+          </Text>
         ) : weatherData ? (
           <WeatherCard
             city={weatherData.city}
@@ -45,15 +94,19 @@ const WeatherScreen = () => {
           />
         ) : null}
       </Pressable>
-      <View style={[styles.searchContainer]}>
+      <View style={[styles.searchContainer, dynamicStyles.searchContainer]}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, dynamicStyles.input]}
           placeholder="Enter city name"
+          placeholderTextColor={themeColors.inputPlaceholder}
           value={cityInput}
           onChangeText={setCityInput}
           onSubmitEditing={handleSearch}
         />
-        <TouchableOpacity style={styles.button} onPress={handleSearch}>
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: themeColors.primary }]}
+          onPress={handleSearch}
+        >
           <Text style={styles.buttonText}>Search</Text>
         </TouchableOpacity>
       </View>
@@ -63,16 +116,27 @@ const WeatherScreen = () => {
 
 const App = () => {
   return (
-    <WeatherProvider>
-      <WeatherScreen />
-    </WeatherProvider>
+    <ThemeProvider>
+      <WeatherProvider>
+        <WeatherScreen />
+      </WeatherProvider>
+    </ThemeProvider>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    padding: 16,
+    paddingTop: Platform.OS === "ios" ? 48 : 16,
+  },
+  themeButton: {
+    padding: 8,
+    borderRadius: 20,
   },
   contentContainer: {
     flex: 1,
@@ -82,34 +146,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginBottom: 20,
     padding: 8,
-    backgroundColor: "white",
     zIndex: 100,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: -1 },
-        shadowOpacity: 0.15,
-        shadowRadius: 1,
-      },
-      android: {
-        borderTopWidth: 1,
-        borderTopColor: "rgba(0, 0, 0, 0.1)",
-      },
-    }),
   },
   input: {
     flex: 1,
     height: 48,
-    backgroundColor: "white",
     borderRadius: 50,
     paddingHorizontal: 15,
     marginRight: 8,
     fontSize: 16,
     borderWidth: 0.75,
-    borderColor: "#E3E3E3",
   },
   button: {
-    backgroundColor: "#007AFF",
     height: 48,
     paddingHorizontal: 16,
     borderRadius: 8,
@@ -122,7 +170,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   error: {
-    color: "red",
     fontSize: 16,
     textAlign: "center",
     marginTop: 20,
