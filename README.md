@@ -23,28 +23,29 @@ In the output, you'll find options to open the app in a
 - [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction)
 
-## Get a fresh project
+## Architectural Decisions
 
-When you're ready, run:
+This weather app is built using the following key architectural decisions:
 
-```bash
-npm run reset-project
-```
+1. **Expo Framework**: We chose Expo for its robust development environment, easy setup, and cross-platform capabilities. It provides a streamlined development experience with features like hot reloading and built-in APIs.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+2. **File-based Routing**: The app uses Expo Router's file-based routing system, which provides a more intuitive and maintainable way to handle navigation compared to traditional navigation libraries.
 
-## Learn more
+3. **Component Structure**: The app follows a modular component architecture where:
 
-To learn more about developing your project with Expo, look at the following resources:
+   - Components are organized by feature/functionality
+   - Reusable UI components are separated from feature-specific components
+   - Each component follows the single responsibility principle
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+4. **State Management**: The app uses React's built-in state management (useState, useContext) for simpler state handling, making it easier to maintain and debug.
 
-## Join the community
+5. **API Integration**: For this small-scale application, we directly integrate the weather API calls within the components where needed. This approach is simpler and more straightforward for the current scope of the application. If the application grows in complexity, we can consider implementing a dedicated service layer.
 
-Join our community of developers creating universal apps.
+These architectural choices were made to ensure:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Maintainable and scalable codebase
+- Easy onboarding for new developers
+- Efficient development workflow
+- Good performance and user experience
