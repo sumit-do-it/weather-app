@@ -2,6 +2,24 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+## Prerequisites
+
+Before you begin, ensure you have the following installed on your system:
+
+1. **Node.js and npm**
+
+   - Install Node.js (LTS version recommended) from [nodejs.org](https://nodejs.org)
+   - npm comes bundled with Node.js
+   - Verify installation:
+     ```bash
+     node --version
+     npm --version
+     ```
+
+2. **Expo Go App** (Optional, for testing on physical devices)
+   - Install [Expo Go](https://expo.dev/client) on your iOS or Android device
+   - Available on [App Store](https://apps.apple.com/app/expo-go/id982107779) and [Play Store](https://play.google.com/store/apps/details?id=host.exp.exponent)
+
 ## Get started
 
 1. Install dependencies
