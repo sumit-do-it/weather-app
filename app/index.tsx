@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -67,12 +66,6 @@ const WeatherScreen = () => {
       Keyboard.dismiss();
     }
   }, [weatherData]);
-
-  useEffect(() => {
-    if (Platform.OS === "ios") {
-      StatusBar.setBackgroundColor(themeColors.background);
-    }
-  }, [themeColors]);
 
   return (
     <KeyboardAvoidingView
