@@ -1,3 +1,5 @@
+import { Colors } from "@/constants/Colors";
+import { useTheme } from "@/context/ThemeContext";
 import React from "react";
 import {
   ImageBackground,
@@ -22,8 +24,14 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
   icon,
   bg,
 }) => {
+  const { theme } = useTheme();
+  const themeColors = Colors[theme];
   return (
-    <ImageBackground source={bg} style={styles.card} resizeMode="cover">
+    <ImageBackground
+      source={bg}
+      style={[styles.card, { borderColor: themeColors.inputBorder }]}
+      resizeMode="cover"
+    >
       <View style={styles.leftContainer}>
         <Text numberOfLines={1} style={styles.city}>
           {city}
@@ -53,6 +61,8 @@ const styles = StyleSheet.create({
     elevation: 2,
     height: 140,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#E3E3E3",
   },
   city: {
     fontSize: 20,

@@ -1,10 +1,12 @@
-import React, { useMemo, useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -24,7 +26,7 @@ const WeatherScreen = () => {
 
   const handleSearch = () => {
     if (cityInput.trim()) {
-      Keyboard.dismiss();
+      // Keyboard.dismiss();
       fetchWeather(cityInput.trim());
     }
   };
@@ -60,12 +62,24 @@ const WeatherScreen = () => {
     };
   }, [themeColors]);
 
+  useEffect(() => {
+    if (weatherData) {
+      Keyboard.dismiss();
+    }
+  }, [weatherData]);
+
+  useEffect(() => {
+    if (Platform.OS === "ios") {
+      StatusBar.setBackgroundColor(themeColors.background);
+    }
+  }, [themeColors]);
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={[styles.container, dynamicStyles.container]}
     >
-      {/* <View style={styles.header}>
+      <View style={styles.header}>
         <TouchableOpacity onPress={toggleTheme} style={styles.themeButton}>
           <Ionicons
             name={isDark ? "sunny" : "moon"}
@@ -73,7 +87,7 @@ const WeatherScreen = () => {
             color={themeColors.icon}
           />
         </TouchableOpacity>
-      </View> */}
+      </View>
       <Pressable onPress={Keyboard.dismiss} style={styles.contentContainer}>
         {loading && !weatherData ? (
           <ActivityIndicator
@@ -131,8 +145,8 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    padding: 16,
-    paddingTop: Platform.OS === "ios" ? 48 : 16,
+    paddingRight: 16,
+    paddingTop: 16,
   },
   themeButton: {
     padding: 8,
