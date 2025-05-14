@@ -1,5 +1,5 @@
-import { Colors } from "@/constants/Colors";
-import { useTheme } from "@/context/ThemeContext";
+import { Colors } from "@/src/constants/Colors";
+import { useTheme } from "@/src/context/ThemeContext";
 import React from "react";
 import {
   ImageBackground,

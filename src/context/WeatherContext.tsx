@@ -1,4 +1,4 @@
-import weatherBackgrounds from "@/constants/weatherBackgrounds";
+import weatherBackgrounds from "@/src/constants/weatherBackgrounds";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import React, { createContext, useContext, useEffect, useState } from "react";
@@ -21,8 +21,8 @@ interface WeatherContextType {
 
 const WeatherContext = createContext<WeatherContextType | undefined>(undefined);
 
-const API_KEY = "c5cc679c46f97cc3c56888c6aefa23be"; // Replace with your API key
-const BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
+const API_KEY = process.env.EXPO_PUBLIC_API_KEY; // we can use secret storage to keep these keys (to prevent from exposing in de-compiled code)
+const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
 
 export const WeatherProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
