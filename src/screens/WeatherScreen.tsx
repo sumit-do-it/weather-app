@@ -1,7 +1,7 @@
 import { WeatherCard } from "@components/WeatherCard";
-import { useTheme } from "@context/ThemeContext";
-import { useWeather } from "@context/WeatherContext";
 import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "@hooks/useTheme";
+import { useWeather } from "@hooks/useWeather";
 import useThemeStyles from "@hooks/useWeatherThemeStyles";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import {
@@ -42,8 +42,17 @@ const WeatherScreen = () => {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       style={[styles.container, themeStyles.container]}
     >
+      {__DEV__ ? (
+        <Text style={styles.testText} testID="theme-text">
+          {isDark}
+        </Text>
+      ) : null}
       <View style={styles.header}>
-        <TouchableOpacity onPress={toggleTheme} style={styles.themeButton}>
+        <TouchableOpacity
+          testID="theme-toggle-button"
+          onPress={toggleTheme}
+          style={styles.themeButton}
+        >
           <Ionicons
             name={isDark ? "sunny" : "moon"}
             size={24}
@@ -73,6 +82,7 @@ const WeatherScreen = () => {
       </Pressable>
       <View style={[styles.searchContainer, themeStyles.searchContainer]}>
         <TextInput
+          testID="city-input"
           style={[styles.input, themeStyles.input]}
           placeholder="Enter city name"
           placeholderTextColor={themeColors.inputPlaceholder}
@@ -81,6 +91,7 @@ const WeatherScreen = () => {
           onSubmitEditing={handleSearch}
         />
         <TouchableOpacity
+          testID="search-button"
           style={[styles.button, { backgroundColor: themeColors.primary }]}
           onPress={handleSearch}
         >
@@ -141,5 +152,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     marginTop: 20,
+  },
+  testText: {
+    opacity: 0,
+    position: "absolute",
+    visibility: "hidden",
   },
 });
