@@ -1,7 +1,7 @@
 import weatherBackgrounds from "@/src/constants/weatherBackgrounds";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import { ImageRequireSource } from "react-native";
 
 interface WeatherData {
@@ -12,14 +12,16 @@ interface WeatherData {
   bg: ImageRequireSource;
 }
 
-interface WeatherContextType {
+export interface WeatherContextType {
   weatherData: WeatherData | null;
   loading: boolean;
   error: string | null;
   fetchWeather: (city: string) => Promise<void>;
 }
 
-const WeatherContext = createContext<WeatherContextType | undefined>(undefined);
+export const WeatherContext = createContext<WeatherContextType | undefined>(
+  undefined
+);
 
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY; // we can use secret storage to keep these keys (to prevent from exposing in de-compiled code)
 const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
@@ -42,7 +44,7 @@ export const WeatherProvider: React.FC<{ children: React.ReactNode }> = ({
         fetchWeather(city);
       }
     } catch (error) {
-      console.error("Error loading last searched city:", error);
+      // console.error("Error loading last searched city:", error);
     }
   };
 
@@ -91,12 +93,4 @@ export const WeatherProvider: React.FC<{ children: React.ReactNode }> = ({
       {children}
     </WeatherContext.Provider>
   );
-};
-
-export const useWeather = () => {
-  const context = useContext(WeatherContext);
-  if (context === undefined) {
-    throw new Error("useWeather must be used within a WeatherProvider");
-  }
-  return context;
 };
