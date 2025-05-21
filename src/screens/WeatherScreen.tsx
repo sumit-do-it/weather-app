@@ -80,19 +80,17 @@ const WeatherScreen = () => {
           />
         ) : null}
       </Pressable>
-      <View style={styles.header}>
-        <TouchableOpacity
-          testID="theme-toggle-button"
-          onPress={toggleTheme}
-          style={styles.themeButton}
-        >
-          <Ionicons
-            name={isDark ? "sunny" : "moon"}
-            size={24}
-            color={themeStyles.themeIcon}
-          />
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        testID="theme-toggle-button"
+        onPress={toggleTheme}
+        style={styles.themeButton}
+      >
+        <Ionicons
+          name={isDark ? "sunny" : "moon"}
+          size={24}
+          color={themeStyles.themeIcon}
+        />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -102,14 +100,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    padding: 16,
-  },
   themeButton: {
-    padding: 8,
+    padding: 16,
     borderRadius: 20,
+    alignSelf: "flex-end",
   },
   contentContainer: {
     flex: 1,
