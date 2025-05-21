@@ -1,5 +1,7 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { createContext, useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
+import useDebounce from "../hooks/useDebounce";
 
 type ThemeType = "light" | "dark";
 
@@ -18,15 +20,31 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const systemTheme = useColorScheme();
   const [theme, setTheme] = useState<ThemeType>(systemTheme || "light");
+  const setThemeInStorage = useDebounce((theme: string) => {
+    AsyncStorage.setItem("theme", theme);
+  });
 
   useEffect(() => {
-    if (systemTheme) {
-      setTheme(systemTheme);
+    loadSavedTheme();
+  }, []);
+
+  const loadSavedTheme = async () => {
+    try {
+      const savedTheme = await AsyncStorage.getItem("theme");
+      if (savedTheme) {
+        setTheme(savedTheme as ThemeType);
+      }
+    } catch (error) {
+      console.error("Error loading saved theme:", error);
     }
-  }, [systemTheme]);
+  };
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+    setTheme((prev) => {
+      let newTheme = prev === "light" ? "dark" : "light";
+      setThemeInStorage(newTheme);
+      return newTheme as ThemeType;
+    });
   };
 
   return (
