@@ -10,12 +10,14 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import useThemeColors from "../hooks/useThemeColors";
 
 const WeatherScreen = () => {
@@ -38,67 +40,70 @@ const WeatherScreen = () => {
   }, [weatherData]);
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={[styles.container, themeStyles.container]}
-    >
-      {__DEV__ ? (
-        <Text style={styles.testText} testID="theme-text">
-          {isDark}
-        </Text>
-      ) : null}
-      <View style={styles.header}>
-        <TouchableOpacity
-          testID="theme-toggle-button"
-          onPress={toggleTheme}
-          style={styles.themeButton}
-        >
-          <Ionicons
-            name={isDark ? "sunny" : "moon"}
-            size={24}
-            color={themeStyles.themeIcon}
-          />
-        </TouchableOpacity>
-      </View>
-      <Pressable onPress={Keyboard.dismiss} style={styles.contentContainer}>
-        {loading && !weatherData ? (
-          <ActivityIndicator
-            size="large"
-            color={themeColors.activityIndicator}
-          />
-        ) : error ? (
-          <Text style={[styles.error, { color: themeColors.error }]}>
-            {error}
+    <SafeAreaView style={[styles.container, themeStyles.container]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={styles.container}
+      >
+        {__DEV__ ? (
+          <Text style={styles.testText} testID="theme-text">
+            {isDark}
           </Text>
-        ) : weatherData ? (
-          <WeatherCard
-            city={weatherData.city}
-            temperature={weatherData.temperature}
-            condition={weatherData.condition}
-            icon={weatherData.icon}
-            bg={weatherData.bg}
-          />
         ) : null}
-      </Pressable>
-      <View style={[styles.searchContainer, themeStyles.searchContainer]}>
-        <TextInput
-          testID="city-input"
-          style={[styles.input, themeStyles.input]}
-          placeholder="Enter city name"
-          placeholderTextColor={themeColors.inputPlaceholder}
-          value={cityInput}
-          onChangeText={setCityInput}
-          onSubmitEditing={handleSearch}
-        />
-        <TouchableOpacity
-          testID="search-button"
-          style={[styles.button, { backgroundColor: themeColors.primary }]}
-          onPress={handleSearch}
-        >
-          <Text style={styles.buttonText}>Search</Text>
-        </TouchableOpacity>
-      </View>
-    </KeyboardAvoidingView>
+        <View style={styles.header}>
+          <TouchableOpacity
+            testID="theme-toggle-button"
+            onPress={toggleTheme}
+            style={styles.themeButton}
+          >
+            <Ionicons
+              name={isDark ? "sunny" : "moon"}
+              size={24}
+              color={themeStyles.themeIcon}
+            />
+          </TouchableOpacity>
+        </View>
+        <Pressable onPress={Keyboard.dismiss} style={styles.contentContainer}>
+          {loading && !weatherData ? (
+            <ActivityIndicator
+              size="large"
+              color={themeColors.activityIndicator}
+            />
+          ) : error ? (
+            <Text style={[styles.error, { color: themeColors.error }]}>
+              {error}
+            </Text>
+          ) : weatherData ? (
+            <WeatherCard
+              city={weatherData.city}
+              temperature={weatherData.temperature}
+              condition={weatherData.condition}
+              icon={weatherData.icon}
+              bg={weatherData.bg}
+            />
+          ) : null}
+        </Pressable>
+        <View style={[styles.searchContainer, themeStyles.searchContainer]}>
+          <TextInput
+            testID="city-input"
+            style={[styles.input, themeStyles.input]}
+            placeholder="Enter city name"
+            placeholderTextColor={themeColors.inputPlaceholder}
+            value={cityInput}
+            onChangeText={setCityInput}
+            onSubmitEditing={handleSearch}
+          />
+          <TouchableOpacity
+            testID="search-button"
+            style={[styles.button, { backgroundColor: themeColors.primary }]}
+            onPress={handleSearch}
+          >
+            <Text style={styles.buttonText}>Search</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 export default memo(WeatherScreen);
