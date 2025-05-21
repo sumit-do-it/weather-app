@@ -23,13 +23,13 @@ export default () => {
         ...Platform.select({
           ios: {
             shadowColor: themeColors.shadowColor,
-            shadowOffset: { width: 0, height: -1 },
+            shadowOffset: { width: 0, height: 1 },
             shadowOpacity: themeColors.shadowOpacity,
             shadowRadius: 1,
           },
           android: {
-            borderTopWidth: 1,
-            borderTopColor: themeColors.borderColor,
+            borderBottomWidth: 1,
+            borderBottomColor: themeColors.borderColor,
           },
         }),
       },

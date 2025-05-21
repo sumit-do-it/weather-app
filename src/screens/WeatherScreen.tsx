@@ -7,8 +7,6 @@ import React, { memo, useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   StatusBar,
   StyleSheet,
@@ -42,67 +40,59 @@ const WeatherScreen = () => {
   return (
     <SafeAreaView style={[styles.container, themeStyles.container]}>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={styles.container}
-      >
-        {__DEV__ ? (
-          <Text style={styles.testText} testID="theme-text">
-            {isDark}
-          </Text>
-        ) : null}
-        <View style={styles.header}>
-          <TouchableOpacity
-            testID="theme-toggle-button"
-            onPress={toggleTheme}
-            style={styles.themeButton}
-          >
-            <Ionicons
-              name={isDark ? "sunny" : "moon"}
-              size={24}
-              color={themeStyles.themeIcon}
-            />
-          </TouchableOpacity>
-        </View>
-        <Pressable onPress={Keyboard.dismiss} style={styles.contentContainer}>
-          {loading && !weatherData ? (
-            <ActivityIndicator
-              size="large"
-              color={themeColors.activityIndicator}
-            />
-          ) : error ? (
-            <Text style={[styles.error, { color: themeColors.error }]}>
-              {error}
-            </Text>
-          ) : weatherData ? (
-            <WeatherCard
-              city={weatherData.city}
-              temperature={weatherData.temperature}
-              condition={weatherData.condition}
-              icon={weatherData.icon}
-              bg={weatherData.bg}
-            />
-          ) : null}
-        </Pressable>
-        <View style={[styles.searchContainer, themeStyles.searchContainer]}>
-          <TextInput
-            testID="city-input"
-            style={[styles.input, themeStyles.input]}
-            placeholder="Enter city name"
-            placeholderTextColor={themeColors.inputPlaceholder}
-            value={cityInput}
-            onChangeText={setCityInput}
-            onSubmitEditing={handleSearch}
+
+      {__DEV__ ? (
+        <Text style={styles.testText} testID="theme-text">
+          {isDark}
+        </Text>
+      ) : null}
+      <View style={[styles.searchContainer, themeStyles.searchContainer]}>
+        <TextInput
+          testID="city-input"
+          style={[styles.input, themeStyles.input]}
+          placeholder="Enter city name"
+          placeholderTextColor={themeColors.inputPlaceholder}
+          value={cityInput}
+          onChangeText={setCityInput}
+          onSubmitEditing={handleSearch}
+        />
+        <TouchableOpacity
+          testID="search-button"
+          style={[styles.button, { backgroundColor: themeColors.primary }]}
+          onPress={handleSearch}
+        >
+          <Text style={styles.buttonText}>Search</Text>
+        </TouchableOpacity>
+      </View>
+      <Pressable onPress={Keyboard.dismiss} style={styles.contentContainer}>
+        {loading && !weatherData?.length ? (
+          <ActivityIndicator
+            size="large"
+            color={themeColors.activityIndicator}
           />
-          <TouchableOpacity
-            testID="search-button"
-            style={[styles.button, { backgroundColor: themeColors.primary }]}
-            onPress={handleSearch}
-          >
-            <Text style={styles.buttonText}>Search</Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
+        ) : weatherData?.length ? (
+          <WeatherCard
+            city={weatherData[0]?.city}
+            temperature={weatherData[0]?.temperature}
+            condition={weatherData[0]?.condition}
+            icon={weatherData[0]?.icon}
+            bg={weatherData[0]?.bg}
+          />
+        ) : null}
+      </Pressable>
+      <View style={styles.header}>
+        <TouchableOpacity
+          testID="theme-toggle-button"
+          onPress={toggleTheme}
+          style={styles.themeButton}
+        >
+          <Ionicons
+            name={isDark ? "sunny" : "moon"}
+            size={24}
+            color={themeStyles.themeIcon}
+          />
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -115,8 +105,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    paddingRight: 16,
-    paddingTop: 16,
+    padding: 16,
   },
   themeButton: {
     padding: 8,
@@ -128,7 +117,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexDirection: "row",
-    marginBottom: 20,
+    // marginBottom: 20,
     padding: 8,
     zIndex: 100,
   },

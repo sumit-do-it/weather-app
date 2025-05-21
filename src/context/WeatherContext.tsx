@@ -1,8 +1,9 @@
 import weatherBackgrounds from "@/src/constants/weatherBackgrounds";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useEffect, useState } from "react";
 import { ImageRequireSource } from "react-native";
+import Toast from "react-native-toast-message";
 
 interface WeatherData {
   city: string;
@@ -13,7 +14,7 @@ interface WeatherData {
 }
 
 export interface WeatherContextType {
-  weatherData: WeatherData | null;
+  weatherData: WeatherData[] | null;
   loading: boolean;
   error: string | null;
   fetchWeather: (city: string) => Promise<void>;
@@ -29,24 +30,43 @@ const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL;
 export const WeatherProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
+  const [weatherDataArr, setWeatherDataArr] = useState<WeatherData[] | null>(
+    []
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadLastSearchedCity();
+    loadWeatherData();
   }, []);
 
-  const loadLastSearchedCity = async () => {
+  const loadWeatherData = async () => {
     try {
-      const city = await AsyncStorage.getItem("lastSearchedCity");
-      if (city) {
-        fetchWeather(city);
+      let weatherData = await AsyncStorage.getItem("weather_data");
+      if (weatherData) {
+        const parsedData = JSON.parse(weatherData) as WeatherData[];
+        setWeatherDataArr(parsedData);
       }
     } catch (error) {
       // console.error("Error loading last searched city:", error);
     }
   };
+
+  const storeWeatherData = useCallback(async (weatherData: WeatherData) => {
+    if (!weatherData) {
+      return;
+    }
+
+    let oldData = await AsyncStorage.getItem("weather_data");
+
+    let newData = [];
+    if (oldData) {
+      newData = JSON.parse(oldData);
+    }
+
+    newData.push(weatherData);
+    AsyncStorage.setItem("weather_data", JSON.stringify(newData.slice(0, 10))); // last 10 data
+  }, []);
 
   const fetchWeather = async (city: string) => {
     setLoading(true);
@@ -71,11 +91,22 @@ export const WeatherProvider: React.FC<{ children: React.ReactNode }> = ({
           weatherBackgrounds.Default,
       };
 
-      setWeatherData(weatherInfo);
-      await AsyncStorage.setItem("lastSearchedCity", city);
+      setWeatherDataArr((data) => {
+        if (data) {
+          return [weatherInfo, ...data];
+        }
+        return [];
+      });
+      storeWeatherData(weatherInfo);
     } catch (error) {
-      setError("City not found. Please try again.");
-      setWeatherData(null);
+      let msg = "City not found. Please try again.";
+      setError(msg);
+      Toast.show({
+        type: "error",
+        text1: msg,
+        position: "bottom",
+        bottomOffset: 100,
+      });
     } finally {
       setLoading(false);
     }
@@ -84,7 +115,7 @@ export const WeatherProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <WeatherContext.Provider
       value={{
-        weatherData,
+        weatherData: weatherDataArr,
         loading,
         error,
         fetchWeather,
