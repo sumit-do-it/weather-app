@@ -1,35 +1,33 @@
-import { WeatherCard } from "@components/WeatherCard";
-import { Ionicons } from "@expo/vector-icons";
+import CitySearchBar from "@components/CitySearchBar";
+import ThemeButton from "@components/ThemeButton";
+import WeatherCardList from "@components/WeatherCardList";
 import { useTheme } from "@hooks/useTheme";
+import useThemeColors from "@hooks/useThemeColors";
 import { useWeather } from "@hooks/useWeather";
 import useThemeStyles from "@hooks/useWeatherThemeStyles";
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useEffect } from "react";
 import {
   ActivityIndicator,
+  Image,
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
+  StatusBar,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
-import useThemeColors from "../hooks/useThemeColors";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const backgrounds = {
+  light: require("@assets/images/light_theme.webp"),
+  dark: require("@assets/images/dark_theme.webp"),
+};
 
 const WeatherScreen = () => {
-  const [cityInput, setCityInput] = useState("");
-  const { weatherData, loading, error, fetchWeather } = useWeather();
-  const { isDark, toggleTheme } = useTheme();
+  const insets = useSafeAreaInsets();
+  const { weatherData, loading } = useWeather();
+  const { isDark, theme } = useTheme();
   const themeColors = useThemeColors();
   const themeStyles = useThemeStyles();
-
-  const handleSearch = useCallback(() => {
-    if (cityInput.trim()) {
-      fetchWeather(cityInput.trim());
-    }
-  }, [cityInput, fetchWeather]);
 
   useEffect(() => {
     if (weatherData) {
@@ -38,124 +36,81 @@ const WeatherScreen = () => {
   }, [weatherData]);
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={[styles.container, themeStyles.container]}
-    >
+    <View style={[styles.container, themeStyles.container]}>
+      <StatusBar
+        barStyle={"light-content"}
+        translucent={true}
+        backgroundColor={"transparent"}
+      />
       {__DEV__ ? (
         <Text style={styles.testText} testID="theme-text">
           {isDark}
         </Text>
       ) : null}
-      <View style={styles.header}>
-        <TouchableOpacity
-          testID="theme-toggle-button"
-          onPress={toggleTheme}
-          style={styles.themeButton}
-        >
-          <Ionicons
-            name={isDark ? "sunny" : "moon"}
-            size={24}
-            color={themeStyles.themeIcon}
-          />
-        </TouchableOpacity>
-      </View>
-      <Pressable onPress={Keyboard.dismiss} style={styles.contentContainer}>
-        {loading && !weatherData ? (
+      <Image
+        source={backgrounds[theme]}
+        style={StyleSheet.absoluteFill}
+        resizeMode="cover"
+      />
+      <View
+        style={[
+          styles.container,
+          { paddingTop: insets.top, paddingBottom: insets.bottom },
+        ]}
+      >
+        <View style={styles.header}>
+          <Text style={styles.heading}>Weather</Text>
+          <ThemeButton />
+        </View>
+        <CitySearchBar style={styles.inputContainer} />
+        {loading && !weatherData?.length ? (
           <ActivityIndicator
             size="large"
             color={themeColors.activityIndicator}
           />
-        ) : error ? (
-          <Text style={[styles.error, { color: themeColors.error }]}>
-            {error}
-          </Text>
-        ) : weatherData ? (
-          <WeatherCard
-            city={weatherData.city}
-            temperature={weatherData.temperature}
-            condition={weatherData.condition}
-            icon={weatherData.icon}
-            bg={weatherData.bg}
-          />
+        ) : weatherData?.length ? (
+          <WeatherCardList />
         ) : null}
-      </Pressable>
-      <View style={[styles.searchContainer, themeStyles.searchContainer]}>
-        <TextInput
-          testID="city-input"
-          style={[styles.input, themeStyles.input]}
-          placeholder="Enter city name"
-          placeholderTextColor={themeColors.inputPlaceholder}
-          value={cityInput}
-          onChangeText={setCityInput}
-          onSubmitEditing={handleSearch}
-        />
-        <TouchableOpacity
-          testID="search-button"
-          style={[styles.button, { backgroundColor: themeColors.primary }]}
-          onPress={handleSearch}
-        >
-          <Text style={styles.buttonText}>Search</Text>
-        </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 export default memo(WeatherScreen);
 
 const styles = StyleSheet.create({
   container: {
+    // height: Dimensions.get("window").height,
+    // width: Dimensions.get("window").width,
     flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    paddingRight: 16,
-    paddingTop: 16,
-  },
-  themeButton: {
-    padding: 8,
-    borderRadius: 20,
-  },
-  contentContainer: {
-    flex: 1,
-    padding: 20,
-  },
-  searchContainer: {
-    flexDirection: "row",
-    marginBottom: 20,
-    padding: 8,
-    zIndex: 100,
-  },
-  input: {
-    flex: 1,
-    height: 48,
-    borderRadius: 50,
-    paddingHorizontal: 15,
-    marginRight: 8,
-    fontSize: 16,
-    borderWidth: 0.75,
-  },
-  button: {
-    height: 48,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  error: {
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 20,
   },
   testText: {
     opacity: 0,
     position: "absolute",
     visibility: "hidden",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    paddingLeft: 8,
+    paddingBottom: 8,
+  },
+  heading: {
+    flex: 1,
+    fontSize: 24,
+    fontWeight: "700",
+    fontFamily: "arial",
+    paddingLeft: 16,
+    color: "white",
+  },
+  inputContainer: {
+    margin: 8,
+  },
+  backgroundImage: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
   },
 });

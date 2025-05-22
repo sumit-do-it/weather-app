@@ -2,14 +2,19 @@ import { ThemeProvider } from "@context/ThemeContext";
 import { WeatherProvider } from "@context/WeatherContext";
 import WeatherScreen from "@screens/WeatherScreen";
 import React from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 const App = () => {
   return (
-    <ThemeProvider>
-      <WeatherProvider>
-        <WeatherScreen />
-      </WeatherProvider>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <WeatherProvider>
+          <WeatherScreen />
+          <Toast />
+        </WeatherProvider>
+      </ThemeProvider>
+    </SafeAreaProvider>
   );
 };
 
