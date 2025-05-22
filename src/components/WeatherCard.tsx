@@ -4,6 +4,7 @@ import { WeatherData } from "@typings/weatherData.type";
 import { formatDate } from "@utils/dateFornatter";
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
+import Animated, { ZoomIn } from "react-native-reanimated";
 
 export const WeatherCard: React.FC<WeatherData> = ({
   city,
@@ -15,7 +16,8 @@ export const WeatherCard: React.FC<WeatherData> = ({
   const { theme } = useTheme();
   const themeColors = Colors[theme];
   return (
-    <View
+    <Animated.View
+      entering={ZoomIn}
       style={[styles.card, { borderColor: themeColors.inputBorder }]}
       testID="background-image"
     >
@@ -42,7 +44,7 @@ export const WeatherCard: React.FC<WeatherData> = ({
           {condition}
         </Text>
       </View>
-    </View>
+    </Animated.View>
   );
 };
 

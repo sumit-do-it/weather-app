@@ -38,7 +38,7 @@ const WeatherCardList = () => {
       data={weatherData}
       renderItem={renderItem}
       ItemSeparatorComponent={separator}
-      keyExtractor={(item, i) => item.city + i}
+      keyExtractor={(item, i) => item.city}
       style={styles.listStyle}
       contentContainerStyle={styles.contentContainerStyle}
       showsVerticalScrollIndicator={false}
