@@ -1,42 +1,38 @@
 import { Colors } from "@/src/constants/Colors";
 import { useTheme } from "@hooks/useTheme";
+import { WeatherData } from "@typings/weatherData.type";
+import { formatDate } from "@utils/dateFornatter";
 import React from "react";
-import {
-  ImageBackground,
-  ImageRequireSource,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 
-interface WeatherCardProps {
-  city: string;
-  temperature: number;
-  condition: string;
-  icon: string;
-  bg: ImageRequireSource;
-}
-
-export const WeatherCard: React.FC<WeatherCardProps> = ({
+export const WeatherCard: React.FC<WeatherData> = ({
   city,
   temperature,
   condition,
   icon,
-  bg,
+  createdAt,
 }) => {
   const { theme } = useTheme();
   const themeColors = Colors[theme];
   return (
-    <ImageBackground
-      source={bg}
+    <View
       style={[styles.card, { borderColor: themeColors.inputBorder }]}
-      resizeMode="cover"
       testID="background-image"
     >
       <View style={styles.leftContainer}>
+        {createdAt ? (
+          <Text numberOfLines={1} style={styles.time} testID="time-text">
+            {formatDate(createdAt)}
+          </Text>
+        ) : null}
         <Text numberOfLines={1} style={styles.city} testID="city-text">
           {city}
         </Text>
+      </View>
+      <View style={styles.iconContainer}>
+        {icon ? (
+          <Image source={icon} style={styles.icon} resizeMode="contain" />
+        ) : null}
       </View>
       <View style={styles.rightContainer}>
         <Text style={styles.temperature} testID="temp-text">
@@ -46,15 +42,13 @@ export const WeatherCard: React.FC<WeatherCardProps> = ({
           {condition}
         </Text>
       </View>
-    </ImageBackground>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "white",
     flexDirection: "row",
-    borderRadius: 20,
     padding: 16,
     shadowColor: "#000",
     shadowOffset: {
@@ -66,8 +60,12 @@ const styles = StyleSheet.create({
     elevation: 2,
     height: 140,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#E3E3E3",
+  },
+  time: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "white",
+    marginBottom: 2,
   },
   city: {
     fontSize: 20,
@@ -75,11 +73,16 @@ const styles = StyleSheet.create({
     color: "white",
   },
   icon: {
-    width: 100,
-    height: 100,
+    width: 70,
+    height: 70,
+  },
+  iconContainer: {
+    flex: 1,
+    alignItems: "center",
+    alignSelf: "center",
   },
   temperature: {
-    fontSize: 48,
+    fontSize: 42,
     fontWeight: "bold",
     color: "white",
     textAlign: "right",
@@ -93,6 +96,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   rightContainer: {
+    flex: 1,
     alignSelf: "flex-end",
   },
 });

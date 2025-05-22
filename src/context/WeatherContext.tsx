@@ -1,23 +1,15 @@
-import weatherBackgrounds from "@/src/constants/weatherBackgrounds";
+import weatherIcons from "@constants/weatherIcons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { WeatherData } from "@typings/weatherData.type";
 import axios from "axios";
 import React, { createContext, useCallback, useEffect, useState } from "react";
-import { ImageRequireSource } from "react-native";
 import Toast from "react-native-toast-message";
-
-interface WeatherData {
-  city: string;
-  temperature: number;
-  condition: string;
-  icon: string;
-  bg: ImageRequireSource;
-}
 
 export interface WeatherContextType {
   weatherData: WeatherData[] | null;
   loading: boolean;
   error: string | null;
-  fetchWeather: (city: string) => Promise<void>;
+  fetchWeather: (city: string) => Promise<boolean>;
 }
 
 export const WeatherContext = createContext<WeatherContextType | undefined>(
@@ -61,17 +53,23 @@ export const WeatherProvider: React.FC<{ children: React.ReactNode }> = ({
 
     let newData = [];
     if (oldData) {
-      newData = JSON.parse(oldData);
+      newData = JSON.parse(oldData)?.filter(
+        (item) => item.city != weatherData.city
+      );
     }
 
-    newData.push(weatherData);
+    newData.unshift(weatherData);
     AsyncStorage.setItem("weather_data", JSON.stringify(newData.slice(0, 10))); // last 10 data
   }, []);
 
   const fetchWeather = async (city: string) => {
     setLoading(true);
     setError(null);
+    let weatherDataFound = false;
     try {
+      if (!BASE_URL) {
+        throw "Weather Api is not found";
+      }
       const response = await axios.get(BASE_URL, {
         params: {
           q: city,
@@ -85,31 +83,37 @@ export const WeatherProvider: React.FC<{ children: React.ReactNode }> = ({
         city: data.name,
         temperature: Math.round(data.main.temp),
         condition: data.weather[0].main,
-        icon: data.weather[0].icon,
-        bg:
-          weatherBackgrounds[data.weather[0]?.main] ??
-          weatherBackgrounds.Default,
+        icon:
+          weatherIcons[data.weather[0]?.main as keyof typeof weatherIcons] ||
+          weatherIcons["Default"],
+        createdAt: new Date().toUTCString(),
       };
 
       setWeatherDataArr((data) => {
         if (data) {
-          return [weatherInfo, ...data];
+          let fileredData = data.filter(
+            (item) => item.city != weatherInfo.city
+          );
+          return [weatherInfo, ...fileredData];
         }
         return [];
       });
       storeWeatherData(weatherInfo);
+      weatherDataFound = true;
     } catch (error) {
       let msg = "City not found. Please try again.";
       setError(msg);
-      Toast.show({
-        type: "error",
-        text1: msg,
-        position: "bottom",
-        bottomOffset: 100,
-      });
+      setTimeout(() => {
+        Toast.show({
+          type: "error",
+          text1: msg,
+          position: "bottom",
+        });
+      }, 300);
     } finally {
       setLoading(false);
     }
+    return weatherDataFound;
   };
 
   return (

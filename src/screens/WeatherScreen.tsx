@@ -1,35 +1,33 @@
-import { WeatherCard } from "@components/WeatherCard";
-import { Ionicons } from "@expo/vector-icons";
+import CitySearchBar from "@components/CitySearchBar";
+import ThemeButton from "@components/ThemeButton";
+import WeatherCardList from "@components/WeatherCardList";
 import { useTheme } from "@hooks/useTheme";
+import useThemeColors from "@hooks/useThemeColors";
 import { useWeather } from "@hooks/useWeather";
 import useThemeStyles from "@hooks/useWeatherThemeStyles";
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useEffect } from "react";
 import {
   ActivityIndicator,
+  ImageBackground,
   Keyboard,
-  Pressable,
   StatusBar,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import useThemeColors from "../hooks/useThemeColors";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const backgrounds = {
+  light: require("@assets/images/light_theme.png"),
+  dark: require("@assets/images/dark_theme.png"),
+};
 
 const WeatherScreen = () => {
-  const [cityInput, setCityInput] = useState("");
-  const { weatherData, loading, error, fetchWeather } = useWeather();
-  const { isDark, toggleTheme } = useTheme();
+  const insets = useSafeAreaInsets();
+  const { weatherData, loading } = useWeather();
+  const { isDark, theme } = useTheme();
   const themeColors = useThemeColors();
   const themeStyles = useThemeStyles();
-
-  const handleSearch = useCallback(() => {
-    if (cityInput.trim()) {
-      fetchWeather(cityInput.trim());
-    }
-  }, [cityInput, fetchWeather]);
 
   useEffect(() => {
     if (weatherData) {
@@ -38,112 +36,67 @@ const WeatherScreen = () => {
   }, [weatherData]);
 
   return (
-    <SafeAreaView style={[styles.container, themeStyles.container]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-
+    <View style={[styles.container, themeStyles.container]}>
+      <StatusBar barStyle={"light-content"} />
       {__DEV__ ? (
         <Text style={styles.testText} testID="theme-text">
           {isDark}
         </Text>
       ) : null}
-      <View style={[styles.searchContainer, themeStyles.searchContainer]}>
-        <TextInput
-          testID="city-input"
-          style={[styles.input, themeStyles.input]}
-          placeholder="Enter city name"
-          placeholderTextColor={themeColors.inputPlaceholder}
-          value={cityInput}
-          onChangeText={setCityInput}
-          onSubmitEditing={handleSearch}
-        />
-        <TouchableOpacity
-          testID="search-button"
-          style={[styles.button, { backgroundColor: themeColors.primary }]}
-          onPress={handleSearch}
-        >
-          <Text style={styles.buttonText}>Search</Text>
-        </TouchableOpacity>
-      </View>
-      <Pressable onPress={Keyboard.dismiss} style={styles.contentContainer}>
+      <ImageBackground
+        source={backgrounds[theme]}
+        style={[
+          styles.container,
+          { paddingTop: insets.top, paddingBottom: insets.bottom },
+        ]}
+        resizeMode="cover"
+      >
+        <View style={styles.header}>
+          <Text style={styles.heading}>Weather</Text>
+          <ThemeButton />
+        </View>
+        <CitySearchBar style={styles.inputContainer} />
         {loading && !weatherData?.length ? (
           <ActivityIndicator
             size="large"
             color={themeColors.activityIndicator}
           />
         ) : weatherData?.length ? (
-          <WeatherCard
-            city={weatherData[0]?.city}
-            temperature={weatherData[0]?.temperature}
-            condition={weatherData[0]?.condition}
-            icon={weatherData[0]?.icon}
-            bg={weatherData[0]?.bg}
-          />
+          <WeatherCardList />
         ) : null}
-      </Pressable>
-      <TouchableOpacity
-        testID="theme-toggle-button"
-        onPress={toggleTheme}
-        style={styles.themeButton}
-      >
-        <Ionicons
-          name={isDark ? "sunny" : "moon"}
-          size={24}
-          color={themeStyles.themeIcon}
-        />
-      </TouchableOpacity>
-    </SafeAreaView>
+      </ImageBackground>
+    </View>
   );
 };
 export default memo(WeatherScreen);
 
 const styles = StyleSheet.create({
   container: {
+    // height: Dimensions.get("window").height,
+    // width: Dimensions.get("window").width,
     flex: 1,
-  },
-  themeButton: {
-    padding: 16,
-    borderRadius: 20,
-    alignSelf: "flex-end",
-  },
-  contentContainer: {
-    flex: 1,
-    padding: 20,
-  },
-  searchContainer: {
-    flexDirection: "row",
-    // marginBottom: 20,
-    padding: 8,
-    zIndex: 100,
-  },
-  input: {
-    flex: 1,
-    height: 48,
-    borderRadius: 50,
-    paddingHorizontal: 15,
-    marginRight: 8,
-    fontSize: 16,
-    borderWidth: 0.75,
-  },
-  button: {
-    height: 48,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  error: {
-    fontSize: 16,
-    textAlign: "center",
-    marginTop: 20,
   },
   testText: {
     opacity: 0,
     position: "absolute",
     visibility: "hidden",
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+    paddingLeft: 8,
+    paddingBottom: 8,
+  },
+  heading: {
+    flex: 1,
+    fontSize: 24,
+    fontWeight: "700",
+    fontFamily: "arial",
+    paddingLeft: 16,
+    color: "white",
+  },
+  inputContainer: {
+    margin: 8,
   },
 });

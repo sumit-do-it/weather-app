@@ -13,6 +13,7 @@ module.exports = {
           "@context": "./src/context",
           "@screens": "./src/screens",
           "@utils": "./src/utils",
+          "@typings": "./src/typings",
           "test-utils": "./test-utils.js",
         },
       },
