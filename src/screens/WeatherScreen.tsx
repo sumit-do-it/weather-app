@@ -8,7 +8,7 @@ import useThemeStyles from "@hooks/useWeatherThemeStyles";
 import React, { memo, useEffect } from "react";
 import {
   ActivityIndicator,
-  ImageBackground,
+  Image,
   Keyboard,
   StatusBar,
   StyleSheet,
@@ -18,8 +18,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const backgrounds = {
-  light: require("@assets/images/light_theme.png"),
-  dark: require("@assets/images/dark_theme.png"),
+  light: require("@assets/images/light_theme.webp"),
+  dark: require("@assets/images/dark_theme.webp"),
 };
 
 const WeatherScreen = () => {
@@ -37,19 +37,26 @@ const WeatherScreen = () => {
 
   return (
     <View style={[styles.container, themeStyles.container]}>
-      <StatusBar barStyle={"light-content"} />
+      <StatusBar
+        barStyle={"light-content"}
+        translucent={true}
+        backgroundColor={"transparent"}
+      />
       {__DEV__ ? (
         <Text style={styles.testText} testID="theme-text">
           {isDark}
         </Text>
       ) : null}
-      <ImageBackground
+      <Image
         source={backgrounds[theme]}
+        style={StyleSheet.absoluteFill}
+        resizeMode="cover"
+      />
+      <View
         style={[
           styles.container,
           { paddingTop: insets.top, paddingBottom: insets.bottom },
         ]}
-        resizeMode="cover"
       >
         <View style={styles.header}>
           <Text style={styles.heading}>Weather</Text>
@@ -64,7 +71,7 @@ const WeatherScreen = () => {
         ) : weatherData?.length ? (
           <WeatherCardList />
         ) : null}
-      </ImageBackground>
+      </View>
     </View>
   );
 };
@@ -98,5 +105,12 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     margin: 8,
+  },
+  backgroundImage: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
   },
 });
